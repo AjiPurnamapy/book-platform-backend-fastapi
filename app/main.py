@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+from app.api.routers import books
 
-app = FastAPI()
+app = FastAPI(title="Platform Buku online")
+
+app.include_router(books.router, prefix="/books", tags=["books"])
 
 @app.get("/")
-def read_root():
-    return {"message": "Selamat datang di platform buku saya"}
+def root():
+    return {"message": "Platform Buku siap"}

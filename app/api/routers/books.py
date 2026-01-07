@@ -3,15 +3,15 @@ from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
-from app.schemas.books import BooksCreate, BooksResponse, BookUpdate
+from app.schemas.books import BookCreate, BookResponse, BookUpdate
 from app.core.db import get_session
 from app.models.books import Book
 
 router = APIRouter()
 
-@router.post("/", response_model=BooksResponse)
+@router.post("/", response_model=BookResponse)
 async def create_books(
-    book_in: BooksCreate,
+    book_in: BookCreate,
     session: AsyncSession = Depends(get_session)
 ):
     """
@@ -25,7 +25,7 @@ async def create_books(
 
     return new_book
 
-@router.get("/", response_model=List[BooksResponse])
+@router.get("/", response_model=List[BookResponse])
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
     skip: int = 0, limit: int = 100
@@ -51,14 +51,14 @@ async def read_book_by_id(
     
     return book
 
-@router.put("/{book_id}")
+@router.put("/{book_id}", response_model=BookResponse)
 async def update_book(
     book_id: int,
     book_update: BookUpdate,
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Update an book
+    Update a book
     """
     db_book = await session.get(Book, book_id)
     if not db_book:
@@ -78,7 +78,7 @@ async def delete(
     session: AsyncSession = Depends(get_session),
 ):
     """
-    Delete an book
+    Delete a book
     """
     db_book = await session.get(Book, book_id)
     if not db_book:

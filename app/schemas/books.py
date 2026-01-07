@@ -1,19 +1,19 @@
-from pydantic import BaseModel, ConfigDict,Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 
-class BooksCreate(BaseModel):
-    author: str = Field(max_length=100)
-    title: str = Field(max_length=500)
-    description: str | None = None
-    price: float = Field(ge=0)
-
-class BooksResponse(BooksCreate):
-    id: Optional[int] 
+class BookCreate(BaseModel):
+    author: str = Field(min_length=1, max_length=255)
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, min_length=1, max_length=1000) 
+    price: int = Field(ge=0)
 
 class BookUpdate(BaseModel):
-    title: str | None = None
-    author: str | None = None
-    description: str | None = None
-    price: float | None = None
+    author: str | None = Field(default=None, min_length=1, max_length=255)
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, min_length=1, max_length=1000)
+    price: int | None = Field(ge=0)
 
-configt_model = ConfigDict(from_attributes=True)
+class BookResponse(BookCreate):
+    id: Optional[int] 
+
+    model_config = ConfigDict(from_attributes=True)

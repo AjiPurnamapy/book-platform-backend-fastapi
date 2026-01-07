@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from app.core.db import init_db
 from app.api.routers import books
 from app.models import books as book_model
+from app.models import user as user_model
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

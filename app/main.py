@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.api.routers import books
 from app.core.db import init_db
 from app.api.routers import books
+from app.models import books as book_model
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

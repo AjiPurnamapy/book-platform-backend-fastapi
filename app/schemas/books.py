@@ -10,4 +10,10 @@ class BooksCreate(BaseModel):
 class BooksResponse(BooksCreate):
     id: Optional[int] 
 
+class BookUpdate(BaseModel):
+    title: str | None = None
+    author: str | None = None
+    description: str | None = None
+    price: float | None = None
+
 configt_model = ConfigDict(from_attributes=True)

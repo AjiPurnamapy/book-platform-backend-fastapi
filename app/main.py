@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.core.db import init_db
-from app.api.routers import books
+from app.api.routers import books, users
 from app.models import books as book_model
 from app.models import user as user_model
 
@@ -16,7 +16,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Platform Buku online", lifespan=lifespan)
 
-app.include_router(books.router, prefix="/books", tags=["books"])
+app.include_router(books.router, prefix="/books", tags=["Books"])
+app.include_router(users.router, prefix="/users", tags=["Users"])
 
 @app.get("/")
 def root():

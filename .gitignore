@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 .cache
 .coverage
+pr_query.txt

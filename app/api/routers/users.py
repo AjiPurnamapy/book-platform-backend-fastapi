@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from app.core.db import get_session
-from app.core.security import get_password_hashed
+from app.core.security import get_password_hashed, verify_password, create_access_token
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, Token
 
 router = APIRouter()
 
@@ -14,9 +15,10 @@ async def register_user(
     user_in: UserCreate,
     session: AsyncSession = Depends(get_session)
 ):
-    query = select(User).where(User.email == user_in.email)
-    result = await session.execute(query)
-    existing_user = result.first()
+    # menggunakan scalar yg langsung return object(bukan result object)
+    existing_user = await session.scalar(
+        select(User).where(User.email == user_in.email).limit(1)
+    )
 
     if existing_user:
         raise HTTPException(
@@ -37,3 +39,29 @@ async def register_user(
     await session.refresh(new_user)
 
     return new_user
+
+@router.post("/login", response_model=Token)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_session)
+):
+
+    user = await session.scalar(
+        select(User).where(User.email == form_data.username).limit(1)
+    )
+    
+    # validasi user ada dan validasi pw cocok/tidak
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email atau password salah",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    # buatkan token
+    access_token = create_access_token(subject=user.id)
+
+    return{
+        "access_token": access_token,
+        "token_type": "Bearer"
+    }

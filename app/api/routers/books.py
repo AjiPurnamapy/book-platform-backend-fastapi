@@ -6,20 +6,22 @@ from typing import List
 from app.schemas.books import BookCreate, BookResponse, BookUpdate
 from app.core.db import get_session
 from app.models.books import Book
+from app.api.deps import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
 @router.post("/", response_model=BookResponse)
 async def create_books(
     book_in: BookCreate,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Create new book
     """
     new_book = Book.model_validate(book_in)
     session.add(new_book)
-
     await session.commit()
     await session.refresh(new_book)
 
@@ -56,6 +58,7 @@ async def update_book(
     book_id: int,
     book_update: BookUpdate,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Update a book
@@ -76,6 +79,7 @@ async def update_book(
 async def delete(
     book_id: int,
     session: AsyncSession = Depends(get_session),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Delete a book

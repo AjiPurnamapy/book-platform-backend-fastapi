@@ -9,7 +9,6 @@ from app.core.security import ALGORITHM, SECRET_KEY
 from app.models.user import User
 from app.schemas.user import TokenData
 
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
 async def get_current_user(
@@ -34,7 +33,6 @@ async def get_current_user(
         raise credentials_exception
     
     user = await session.get(User, token_data.id)
-
     if user is None:
         raise credentials_exception
     

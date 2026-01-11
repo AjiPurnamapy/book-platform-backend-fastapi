@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from sqlmodel import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -21,6 +21,8 @@ async def create_books(
     Create new book
     """
     new_book = Book.model_validate(book_in)
+    new_book.user_id = current_user.id
+
     session.add(new_book)
     await session.commit()
     await session.refresh(new_book)
@@ -67,6 +69,12 @@ async def update_book(
     if not db_book:
         raise HTTPException(status_code=404, detail="Buku tidak ditemukan")
     
+    if db_book.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tidak cukup hak akses untuk mengubah buku ini",
+        )
+    
     book_data = book_update.model_dump(exclude_unset=True)
     db_book.sqlmodel_update(book_data)
 
@@ -87,6 +95,12 @@ async def delete(
     db_book = await session.get(Book, book_id)
     if not db_book:
         raise HTTPException(status_code=404, detail="Buku tidak ditemukan")
+    
+    if db_book.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Anda bukan pemilik buku ini",
+        )
     
     await session.delete(db_book)
     await session.commit()
